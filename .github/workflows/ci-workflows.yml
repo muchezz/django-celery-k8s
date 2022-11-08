@@ -25,27 +25,27 @@ jobs:
           DOCKERHUB_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
           DOCKER_USER: ${{ secrets.DOCKER_USER  }}
 
-  # deploy_to_kubernetes_cluster:
-  #   name: Deploy to Kubernetes Cluster
-  #   needs: push_docker_image_to_github_packages
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout Repo
-  #       uses: actions/checkout@v2
-  #     - name: Set Kubernetes Context
-  #       uses: azure/k8s-set-context@v1
-  #       with:
-  #         method: kubeconfig
-  #         kubeconfig: ${{ secrets.KUBECTL_CONFIG }}
-  #     - name: Deploy to Cluster
-  #       env:
-  #         BUILD_NUMBER: ${{ github.run_number }}
-  #       run: |
-  #         export BUILD_TAG=django-prod-$BUILD_NUMBER
-  #         sed -i "s/VERSION/${BUILD_TAG}/g" ./k8s/app/deploy.yaml
-  #         sed -i "s/VERSION/${BUILD_TAG}/g" ./k8s/celery-worker/celery-worker.yaml
-  #         sed -i "s/VERSION/${BUILD_TAG}/g" ./k8s/celery-flower/celery-flower.yaml
+  deploy_to_kubernetes_cluster:
+    name: Deploy to Kubernetes Cluster
+    needs: push_docker_image_to_github_packages
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v2
+      - name: Set Kubernetes Context
+        uses: azure/k8s-set-context@v1
+        with:
+          method: kubeconfig
+          kubeconfig: ${{ secrets.KUBECTL_CONFIG }}
+      - name: Deploy to Cluster
+        env:
+          BUILD_NUMBER: ${{ github.run_number }}
+        run: |
+          export BUILD_TAG=django-prod-$BUILD_NUMBER
+          sed -i "s/VERSION/${BUILD_TAG}/g" ./k8s/app/deploy.yaml
+          sed -i "s/VERSION/${BUILD_TAG}/g" ./k8s/celery-worker/celery-worker.yaml
+          sed -i "s/VERSION/${BUILD_TAG}/g" ./k8s/celery-flower/celery-flower.yaml
 
-  #         kubectl apply -f ./k8s/app/deploy.yaml
-  #         kubectl apply -f ./k8s/celery-worker/celery-worker.yaml
-  #         kubectl apply -f ./k8s/celery-flower/celery-flower.yaml
+          kubectl apply -f ./k8s/app/deploy.yaml
+          kubectl apply -f ./k8s/celery-worker/celery-worker.yaml
+          kubectl apply -f ./k8s/celery-flower/celery-flower.yaml
