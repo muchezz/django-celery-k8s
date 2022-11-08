@@ -1,0 +1,60 @@
+*.py[cod]
+
+# C extensions
+*.so
+
+# Packages
+*.egg
+*.egg-info
+dist
+build
+eggs
+parts
+bin
+var
+sdist
+develop-eggs
+.installed.cfg
+lib
+lib64
+get_env_details
+initialize
+migrate_account.txt
+postactivate
+postdeactivate
+postmkproject
+postmkvirtualenv
+postrmvirtualenv
+preactivate
+predeactivate
+premkproject
+premkvirtualenv
+prermvirtualenv
+sociator_manager
+
+# Installer logs
+pip-log.txt
+
+# Unit test / coverage reports
+.coverage
+.tox
+nosetests.xml
+
+# PyCharm
+.idea/
+
+env/
+venv/
+
+# Swap files from vim
+*.swp
+
+# Tags from ctags
+tags
+
+# vim session
+Session.vim
+
+.DS_Store
+.vscode/settings.json
+celery.logs

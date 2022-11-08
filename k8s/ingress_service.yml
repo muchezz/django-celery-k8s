@@ -1,0 +1,28 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-service
+spec:
+  rules:
+  - host: django.postgres.com
+    http:
+      paths:
+        ################
+        # URL ROUTING #
+        ################
+        - path: /
+          pathType: Prefix
+          backend:
+            service:
+              name: django-cluster-ip-service
+              port:
+                number: 8000
+
+        - path: /flower/
+          pathType: Prefix
+          backend:
+            service:
+              name: django-celery-flower-load-balancer
+              port:
+                number: 5000
+

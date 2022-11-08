@@ -1,0 +1,1 @@
+{"virtualbox":{"/opt/devops_challenge_app":{"guestpath":"/opt/devops_challenge_app","hostpath":"/home/crazywizard/Documents/fenix/devops_challenge/devops_challenge_app","disabled":false,"__vagrantfile":true},"/vagrant":{"guestpath":"/vagrant","hostpath":"/home/crazywizard/Documents/fenix/devops_challenge","disabled":false,"__vagrantfile":true}}}
