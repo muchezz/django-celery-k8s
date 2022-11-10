@@ -9,6 +9,8 @@ on:
 
 jobs:
   push_docker_image_to_github_packages:
+
+    
     name: Build and push docker images
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
@@ -20,7 +22,7 @@ jobs:
         run: ./deploy.sh
         env:
           CR_PAT: ${{ secrets.CR_PAT }}
-          KUBECTL_CONFIG: ${{ secrets.KUBECTL_CONFIG }}
+          KUBECTL_CONFIG: ${{ secrets.EKS_KUBECONFIG  }}
           BUILD_NUMBER: ${{ github.run_number }}
           DOCKERHUB_PASSWORD: ${{ secrets.DOCKERHUB_PASSWORD }}
           DOCKER_USER: ${{ secrets.DOCKER_USER  }}
@@ -30,22 +32,51 @@ jobs:
     needs: push_docker_image_to_github_packages
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repo
-        uses: actions/checkout@v2
-      - name: Set Kubernetes Context
-        uses: azure/k8s-set-context@v1
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
         with:
-          method: kubeconfig
-          kubeconfig: ${{ secrets.KUBECTL_CONFIG }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
       - name: Deploy to Cluster
         env:
           BUILD_NUMBER: ${{ github.run_number }}
         run: |
+          echo ${{ secrets.EKS_KUBECONFIG }} | base64 --decode > kubeconfig.yaml
           export BUILD_TAG=django-prod-$BUILD_NUMBER
           sed -i "s/VERSION/${BUILD_TAG}/g" ./k8s/app/deploy.yaml
           sed -i "s/VERSION/${BUILD_TAG}/g" ./k8s/celery-worker/celery-worker.yaml
           sed -i "s/VERSION/${BUILD_TAG}/g" ./k8s/celery-flower/celery-flower.yaml
 
-          kubectl apply -f ./k8s/app/deploy.yaml
-          kubectl apply -f ./k8s/celery-worker/celery-worker.yaml
-          kubectl apply -f ./k8s/celery-flower/celery-flower.yaml
+
+          export IMAGE_TAG=${{ env.SHORT_SHA }}
+          export KUBECONFIG=kubeconfig.yaml
+          envsubst < k8s/kustomization.tmpl.yaml > k8s/kustomization.yaml
+          kubectl kustomize k8s | kubectl apply -f -
+          
+  #   name: Deploy to Kubernetes Cluster
+  #   needs: push_docker_image_to_github_packages
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout Repo
+  #       uses: actions/checkout@v2
+  #     - name: Set Kubernetes Context
+  #       uses: azure/k8s-set-context@v1
+  #       with:
+  #         method: kubeconfig
+  #         kubeconfig: ${{ secrets.KUBECTL_CONFIG }}
+  #     - name: Deploy to Cluster
+  #       env:
+  #         BUILD_NUMBER: ${{ github.run_number }}
+  #       run: |
+  #         export BUILD_TAG=django-prod-$BUILD_NUMBER
+  #         sed -i "s/VERSION/${BUILD_TAG}/g" ./k8s/app/deploy.yaml
+  #         sed -i "s/VERSION/${BUILD_TAG}/g" ./k8s/celery-worker/celery-worker.yaml
+  #         sed -i "s/VERSION/${BUILD_TAG}/g" ./k8s/celery-flower/celery-flower.yaml
+
+  #         kubectl apply -f ./k8s/app/deploy.yaml
+  #         kubectl apply -f ./k8s/celery-worker/celery-worker.yaml
+  #         kubectl apply -f ./k8s/celery-flower/celery-flower.yaml
+
