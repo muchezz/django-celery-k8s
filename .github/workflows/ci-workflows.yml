@@ -35,7 +35,7 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v2
-        
+
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
@@ -58,19 +58,14 @@ jobs:
         run: |
 
           export BUILD_TAG=django-prod-$BUILD_NUMBER
-          ls -la
-          cat ./k8s/app/deploy.yaml
-          sed -i "s/VERSION/${BUILD_TAG}/g" ./k8s/app/deploy.yaml
-          sed -i "s/VERSION/${BUILD_TAG}/g" ./k8s/celery-worker/celery-worker.yaml
-          sed -i "s/VERSION/${BUILD_TAG}/g" ./k8s/celery-flower/celery-flower.yaml
+          sed -i "s/VERSION/${BUILD_TAG}/g" ./k8s/deploy.yaml
+          sed -i "s/VERSION/${BUILD_TAG}/g" ./k8s/celery-worker.yaml
+          sed -i "s/VERSION/${BUILD_TAG}/g" ./k8s/celery-flower.yaml
 
-
-          export IMAGE_TAG=${{ env.SHORT_SHA }}
-          # export KUBECONFIG=kubeconfig.yaml
           envsubst < k8s/kustomization.tmpl.yaml > k8s/kustomization.yaml
           kubectl kustomize k8s | kubectl apply -f -
           
-  #   name: Deploy to Kubernetes Cluster
+  #   name: Deploy to Azure Kubernetes Cluster
   #   needs: push_docker_image_to_github_packages
   #   runs-on: ubuntu-latest
   #   steps:

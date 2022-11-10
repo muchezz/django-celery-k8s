@@ -1,0 +1,94 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: django-celery-worker-deployment
+  namespace: default
+  labels:
+    app: django-celery-worker
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: django-celery-worker
+  template:
+    metadata:
+      labels:
+        app: django-celery-worker
+    spec:
+      terminationGracePeriodSeconds: 86400
+      imagePullSecrets:
+        - name: dockerconfigjson-github-com
+      containers:
+        - name: django-celery-worker-docker-image
+          image: greentropikal/django-webapp:VERSION
+          command: [ "/bin/sh","-c" ]
+          args: [celery -A django_celery worker -l info ]
+          imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "500M"
+            limits:
+              cpu: "500m"
+              memory: "1000M"
+          env:
+            - name: DATABASE_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: djangosecrets
+                  key: database_name
+                  optional: false
+            - name: DATABASE_USER
+              valueFrom:
+                secretKeyRef:
+                  name: djangosecrets
+                  key: database_user
+                  optional: false
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: djangosecrets
+                  key: database_password
+                  optional: false
+            - name: DATABASE_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: djangosecrets
+                  key: database_host
+                  optional: false
+            - name: DATABASE_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: djangosecrets
+                  key: database_port
+                  optional: false
+            - name: ALLOWED_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: djangosecrets
+                  key: allowed_host
+                  optional: false
+
+            - name: REDIS_HOST
+              value: redis
+
+---
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: celery-autoscaler
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: django-celery-worker-deployment
+  minReplicas: 1
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 50
+
+
