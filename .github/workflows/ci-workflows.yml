@@ -53,7 +53,7 @@ jobs:
         env:
           BUILD_NUMBER: ${{ github.run_number }}
         run: |
-          # echo ${{ secrets.EKS_KUBECONFIG }} | base64 --decode > kubeconfig.yaml
+
           export BUILD_TAG=django-prod-$BUILD_NUMBER
           sed -i "s/VERSION/${BUILD_TAG}/g" ./k8s/app/deploy.yaml
           sed -i "s/VERSION/${BUILD_TAG}/g" ./k8s/celery-worker/celery-worker.yaml
