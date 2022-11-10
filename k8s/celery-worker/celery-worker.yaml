@@ -25,7 +25,7 @@ spec:
         - name: dockerconfigjson-github-com
       containers:
         - name: django-celery-worker-docker-image
-          image: greentropikal/django-webapp:django-prod-10
+          image: greentropikal/django-webapp:VERSION
           command: [ "/bin/sh","-c" ]
           args: [celery -A django_celery worker -l info ]
           imagePullPolicy: IfNotPresent

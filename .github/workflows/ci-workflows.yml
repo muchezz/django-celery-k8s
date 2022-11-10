@@ -55,6 +55,8 @@ jobs:
         run: |
 
           export BUILD_TAG=django-prod-$BUILD_NUMBER
+          ls -la
+          cat ./k8s/app/deploy.yaml
           sed -i "s/VERSION/${BUILD_TAG}/g" ./k8s/app/deploy.yaml
           sed -i "s/VERSION/${BUILD_TAG}/g" ./k8s/celery-worker/celery-worker.yaml
           sed -i "s/VERSION/${BUILD_TAG}/g" ./k8s/celery-flower/celery-flower.yaml

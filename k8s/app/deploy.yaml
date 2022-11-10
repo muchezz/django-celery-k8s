@@ -26,7 +26,7 @@ spec:
         - name: dockerconfigjson-github-com
       containers:
         - name: webapp-docker-image
-          image: greentropikal/django-webapp:django-prod-19
+          image: greentropikal/django-webapp:VERSION
     #       command: ["/bin/sh", "-c", "python manage.py migrate && python3 manage.py runserver 0.0.0.0:8000"]
     # #["python","./manage.py", "runserver", "0.0.0.0:8000"]
           imagePullPolicy: IfNotPresent
