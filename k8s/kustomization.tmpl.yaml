@@ -1,9 +1,9 @@
 resources:
-- app/deploy.yaml
-- celery-worker/celery-worker.yaml
-- celery-worker/celery-worker.yaml
-- redis/redis-deploy.yaml
-- postgres/postgres-deploy.yaml
+- deploy.yaml
+- celery-worker.yaml
+- celery-worker.yaml
+- redis-deploy.yaml
+- postgres-deploy.yaml
 - secrets.yaml
 - ingress_service.yaml
 - config_map.yaml
